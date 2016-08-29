@@ -47,15 +47,15 @@ grp_tirc <- function(x, rgroup_col="group", grp="study_grp", rnames="Characteris
   TIRC(wide, rnames=rnames, rgroup_col=rgroup_col, cgroup=grps, n.cgroup=rep(length(cols)-2, length(grps)))
 }
 
-tab1 <- bind_rows(data_frame(varnm='Age (yrs)', var='age', group='', type='c'),
-                  data_frame(varnm='White', var='race', group='', type='b', target=4),
-                  data_frame(varnm='Not Hispanic or Latino', var='ethnicity', group='', type='b', target=1),
-                  data_frame(varnm='Female', var='gender', group='', type='b', target=0),
-                  data_frame(varnm='FamHx ALS', var='fhals', group='', type='b', target=1),
-                  data_frame(varnm='Disease Duration', var='dis_dur', group='', type='c'),
-                  data_frame(varnm='Diagnostic Delay', var='diag_delay', group='', type='c'),
-                  data_frame(varnm='Diagnosis', var='ddx', group='', type='m'),
-                  data_frame(varnm='el_escorial', var='el_escorial', group='', type='m'),
-                  data_frame(varnm='Site Of Onset', var='site_of_onset', group='', type='m')) %>% 
-  group_by(ordr=1:n()) %>% do(tab1_fxn(., demo, grp="arm")) %>% ungroup
-grp_tirc(tab1 %>% select(-ordr), grp="arm")
+# tab1 <- bind_rows(data_frame(varnm='Age (yrs)', var='age', group='', type='c'),
+#                   data_frame(varnm='White', var='race', group='', type='b', target=4),
+#                   data_frame(varnm='Not Hispanic or Latino', var='ethnicity', group='', type='b', target=1),
+#                   data_frame(varnm='Female', var='gender', group='', type='b', target=0),
+#                   data_frame(varnm='FamHx ALS', var='fhals', group='', type='b', target=1),
+#                   data_frame(varnm='Disease Duration', var='dis_dur', group='', type='c'),
+#                   data_frame(varnm='Diagnostic Delay', var='diag_delay', group='', type='c'),
+#                   data_frame(varnm='Diagnosis', var='ddx', group='', type='m'),
+#                   data_frame(varnm='el_escorial', var='el_escorial', group='', type='m'),
+#                   data_frame(varnm='Site Of Onset', var='site_of_onset', group='', type='m')) %>% 
+#   group_by(ordr=1:n()) %>% do(tab1_fxn(., demo, grp="arm")) %>% ungroup
+# grp_tirc(tab1 %>% select(-ordr), grp="arm")
