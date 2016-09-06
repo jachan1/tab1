@@ -1,4 +1,4 @@
-tab1_fxn_hpr <- function(ds, tab_in){
+tab1_fxn_hpr <- function(ds, tab_in, pp, mp){
   # if(tab_in$var=="ddx") browser()
   var_values <- ds[[as.character(tab_in$var)]]
   if(class(var_values) == "factor") {
@@ -9,10 +9,10 @@ tab1_fxn_hpr <- function(ds, tab_in){
     targets <- unique(var_values[!is.na(var_values)])
   }
   n_avail <- sum(!is.na(var_values))
-  pct_fxn <- function(target=tab_in$target) sprintf("%1.1f%% (%g)", 100*sum(var_values == target, na.rm=T)/sum(!is.na(var_values)), sum(var_values == target, na.rm=T))
+  pct_fxn <- function(target=tab_in$target) sprintf("%1.1f%% (%g)", pp, 100*sum(var_values == target, na.rm=T)/sum(!is.na(var_values)), sum(var_values == target, na.rm=T))
   
   value = if(tab_in$type == "c"){
-    sprintf("%1.1f (%1.1f)", mean(var_values, na.rm=T), sd(var_values, na.rm=T))
+    sprintf("%1.1f (%1.1f)", mp, mean(var_values, na.rm=T), mp, sd(var_values, na.rm=T))
   } else if(tab_in$type == "b"){
     pct_fxn()
   }
@@ -24,16 +24,16 @@ tab1_fxn_hpr <- function(ds, tab_in){
   }
 }
 
-tab1_fxn <- function(tab_in, ds, grp){
+tab1_fxn <- function(tab_in, ds, grp, pp=1, mp=1){
   # print(tab_in)
   # if(tab_in$var=="ddx") browser()
   ## tab_in should include columns "varnm", "var", "type", "group"
   ## if type == "b" then target should be available
   # if(tab_in$var == "white") browser()
   if(!missing(grp)){
-    ds %>% group_by_(grp) %>% do(tab1_fxn_hpr(.,tab_in))
+    ds %>% group_by_(grp) %>% do(tab1_fxn_hpr(.,tab_in, pp=pp, mp=mp))
   } else {
-    ds %>% do(tab1_fxn_hpr(., tab_in))
+    ds %>% do(tab1_fxn_hpr(., tab_in, pp=pp, mp=mp))
   }
 }
 
