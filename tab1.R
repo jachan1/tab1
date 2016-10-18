@@ -47,6 +47,7 @@ tab1_fxn <- function(tab_in, ds, grp, pp=1, mp=1, test=F){
     if(test){
       p <- tryCatch(test_grp(ds, grp, tab_in), error=function(e) NA)
       ds_out <- ds_out %>% ungroup %>% mutate(p=p)
+      if(tab_in$type=="m") ds_out$p[ds_out$Characteristic != ds_out$Characteristic[1]] <- NA
     }
     ds_out
   } else {
