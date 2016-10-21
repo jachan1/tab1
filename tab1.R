@@ -24,10 +24,10 @@ tab1_fxn_hpr <- function(ds, tab_in, pp, mp){
   }
 }
 
-test_grp <- function(ds, grp, tab_in, sub="referenceid"){
+test_grp <- function(ds, grp, tab_in){
   fm1 <- formula(sprintf("%s ~ %s", tab_in$var, grp))
   if(tab_in$type == "c"){
-    lm1 <- lm(fm1, data=na.omit(ds[c(tab_in$var, grp, sub)]))
+    lm1 <- lm(fm1, data=na.omit(ds[c(tab_in$var, grp)]))
     slm1 <- summary(lm1)
     anova(lm1)[1, "Pr(>F)"]
   } else {
@@ -59,6 +59,7 @@ grp_tirc <- function(x, rgroup_col="group", grp="study_grp", rnames="Characteris
   if(p == F) p <- as.character()
   if(!rgroup_col %in% names(x)) x[[rgroup_col]]=""
   cols <- setdiff(names(x), c(grp, p))
+  x[[rnames]] <- factor(x[[rnames]], unique(x[[rnames]]))
   # print(cols)
   wide <- Reduce(function(x, y) merge(x, y, by=c(rgroup_col, rnames), all=T), lapply(unique(x[[grp]]), function(y) x[x[[grp]]==y, cols]))
   if(length(p) > 0) wide <- wide %>% left_join(unique(x[c(rnames, p)]), by=rnames)
@@ -70,7 +71,7 @@ grp_tirc <- function(x, rgroup_col="group", grp="study_grp", rnames="Characteris
     ngrps <- c(ngrps, 1)
     wide[[p]] <- round(wide[[p]], 3)
   }
-  TIRC(wide, rnames=rnames, rgroup_col=rgroup_col, cgroup=grps, n.cgroup=ngrps)
+  TIRC(wide[order(wide[[rnames]]),], rnames=rnames, rgroup_col=rgroup_col, cgroup=grps, n.cgroup=ngrps)
 }
 
 # tab1 <- bind_rows(data_frame(varnm='Age (yrs)', var='age', group='', type='c'),
