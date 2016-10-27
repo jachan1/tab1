@@ -55,15 +55,17 @@ tab1_fxn <- function(tab_in, ds, grp, pp=1, mp=1, test=F){
   }
 }
 
-grp_tirc <- function(x, rgroup_col="group", grp="study_grp", rnames="Characteristic", p=F){
+grp_tirc<- function(x, rgroup_col="group", grp="study_grp", rnames="Characteristic", p=F){
   if(p == F) p <- as.character()
   if(!rgroup_col %in% names(x)) x[[rgroup_col]]=""
   cols <- setdiff(names(x), c(grp, p))
-  x[[rnames]] <- factor(x[[rnames]], unique(x[[rnames]]))
+  rrdrs <- paste(x[[rgroup_col]], x[[rnames]], sep="_1_")
+  x$rorder <- factor(rrdrs, unique(rrdrs))
   # print(cols)
-  wide <- Reduce(function(x, y) merge(x, y, by=c(rgroup_col, rnames), all=T), lapply(unique(x[[grp]]), function(y) x[x[[grp]]==y, cols]))
-  if(length(p) > 0) wide <- wide %>% left_join(unique(x[c(rnames, p)]), by=rnames)
-  names(wide) <- c(rgroup_col, rnames, rep(setdiff(cols, c(rnames, rgroup_col)), length(unique(x[[grp]]))), p)
+  unique_cols <- c(rgroup_col, rnames, "rorder")
+  wide <- Reduce(function(x, y) merge(x, y, by=unique_cols, all=T), lapply(unique(x[[grp]]), function(y) x[x[[grp]]==y, c(cols, "rorder")]))
+  if(length(p) > 0) wide <- wide %>% left_join(unique(x[c(rgroup_col, rnames, p)]), by=c(rgroup_col, rnames))
+  names(wide) <- c(unique_cols, rep(setdiff(cols, unique_cols), length(unique(x[[grp]]))), p)
   grps <- as.character(unique(x[[grp]]))
   ngrps <- rep(length(cols)-2, length(grps))
   if(length(p) > 0) {
@@ -71,7 +73,8 @@ grp_tirc <- function(x, rgroup_col="group", grp="study_grp", rnames="Characteris
     ngrps <- c(ngrps, 1)
     wide[[p]] <- round(wide[[p]], 3)
   }
-  TIRC(wide[order(wide[[rnames]]),], rnames=rnames, rgroup_col=rgroup_col, cgroup=grps, n.cgroup=ngrps)
+  TIRC(wide[order(wide[["rorder"]]), -1*which(names(wide)=="rorder")], rnames=rnames, 
+       rgroup_col=rgroup_col, cgroup=grps, n.cgroup=ngrps)
 }
 
 # tab1 <- bind_rows(data_frame(varnm='Age (yrs)', var='age', group='', type='c'),
