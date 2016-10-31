@@ -62,19 +62,21 @@ grp_tirc<- function(x, rgroup_col="group", grp="study_grp", rnames="Characterist
   rrdrs <- paste(x[[rgroup_col]], x[[rnames]], sep="_1_")
   x$rorder <- factor(rrdrs, unique(rrdrs))
   # print(cols)
-  unique_cols <- c(rgroup_col, rnames, "rorder")
-  wide <- Reduce(function(x, y) merge(x, y, by=unique_cols, all=T), lapply(unique(x[[grp]]), function(y) x[x[[grp]]==y, c(cols, "rorder")]))
-  if(length(p) > 0) wide <- wide %>% left_join(unique(x[c(rgroup_col, rnames, p)]), by=c(rgroup_col, rnames))
-  names(wide) <- c(unique_cols, rep(setdiff(cols, unique_cols), length(unique(x[[grp]]))), p)
+  unique_cols <- c(rgroup_col, rnames)
+  wide <- Reduce(function(x, y) merge(x, y, by=c(unique_cols, "rorder"), all=T), lapply(unique(x[[grp]]), function(y) x[x[[grp]]==y, c(cols, "rorder")]))
   grps <- as.character(unique(x[[grp]]))
   ngrps <- rep(length(cols)-2, length(grps))
   if(length(p) > 0) {
+    wide <- merge(wide, unique(x[c(rgroup_col, rnames, p)]), by=c(rgroup_col, rnames), all.x=T)
     grps <- c(grps, "")
     ngrps <- c(ngrps, 1)
     wide[[p]] <- round(wide[[p]], 3)
   }
-  TIRC(wide[order(wide[["rorder"]]), -1*which(names(wide)=="rorder")], rnames=rnames, 
-       rgroup_col=rgroup_col, cgroup=grps, n.cgroup=ngrps)
+  
+  wide <- wide[order(wide[["rorder"]]), -1*which(names(wide)=="rorder")]
+  names(wide) <- c(unique_cols, rep(setdiff(cols, unique_cols), length(unique(x[[grp]]))), p)
+
+  TIRC(wide, rnames=rnames, rgroup_col=rgroup_col, cgroup=grps, n.cgroup=ngrps)
 }
 
 # tab1 <- bind_rows(data_frame(varnm='Age (yrs)', var='age', group='', type='c'),
