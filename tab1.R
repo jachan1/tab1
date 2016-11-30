@@ -10,7 +10,6 @@ tab1_fxn_hpr <- function(ds, tab_in, pp, mp, denom=F, header="both"){
     targets <- unique(var_values[!is.na(var_values)])
   }
   n_avail <- sum(!is.na(var_values))
-  browser()
   pct_fxn <- if(denom){
     function(target=tab_in$target) sprintf("%1.*f%% (%g/%g)", pp, 100*sum(var_values == target, na.rm=T)/sum(!is.na(var_values)), sum(var_values == target, na.rm=T), sum(!is.na(var_values)))
   } else {
