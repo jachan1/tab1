@@ -28,7 +28,7 @@ tab1_fxn_hpr <- function(ds, tab_in, pp, mp, denom=F, header="both"){
     data_frame(group=tab_in$varnm, Characteristic=targets, N=n_avail, summary_col=values)
   } else {
     data_frame(group=tab_in$group, Characteristic=tab_in$varnm, N=n_avail, summary_col=value)
-  }
+  } %>% setNames(c("group", "Characteristic", "N", summary_head))
 }
 
 test_grp <- function(ds, grp, tab_in){
