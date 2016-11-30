@@ -1,4 +1,5 @@
-tab1_fxn_hpr <- function(ds, tab_in, pp, mp){
+tab1_fxn_hpr <- function(ds, tab_in, pp, mp, denom=F, header="both"){
+  ## header can be both, msd, or np
   # if(tab_in$var=="ddx") browser()
   var_values <- ds[[as.character(tab_in$var)]]
   if(class(var_values) == "factor") {
@@ -9,18 +10,25 @@ tab1_fxn_hpr <- function(ds, tab_in, pp, mp){
     targets <- unique(var_values[!is.na(var_values)])
   }
   n_avail <- sum(!is.na(var_values))
-  pct_fxn <- function(target=tab_in$target) sprintf("%1.*f%% (%g)", pp, 100*sum(var_values == target, na.rm=T)/sum(!is.na(var_values)), sum(var_values == target, na.rm=T))
-  
+  browser()
+  pct_fxn <- if(denom){
+    function(target=tab_in$target) sprintf("%1.*f%% (%g/%g)", pp, 100*sum(var_values == target, na.rm=T)/sum(!is.na(var_values)), sum(var_values == target, na.rm=T), sum(!is.na(var_values)))
+  } else {
+    function(target=tab_in$target) sprintf("%1.*f%% (%g)", pp, 100*sum(var_values == target, na.rm=T)/sum(!is.na(var_values)), sum(var_values == target, na.rm=T))
+  }
+  msd_fxn <- function(vv=var_values) sprintf("%1.*f (%1.*f)", mp, mean(vv, na.rm=T), mp, sd(vv, na.rm=T))
   value = if(tab_in$type == "c"){
-    sprintf("%1.*f (%1.*f)", mp, mean(var_values, na.rm=T), mp, sd(var_values, na.rm=T))
+    msd_fxn()
   } else if(tab_in$type == "b"){
     pct_fxn()
   }
+  
+  summary_head <- ifelse(header=="msd", "Mean (SD)", ifelse(header=="np", "Percent (n)", "Percent (n) or Mean (SD)"))
   if(tab_in$type == "m"){
     values <- sapply(targets, pct_fxn)
-    data_frame(group=tab_in$varnm, Characteristic=targets, N=n_avail, `Percent (n) or Mean (SD)`=values)
+    data_frame(group=tab_in$varnm, Characteristic=targets, N=n_avail, summary_col=values)
   } else {
-    data_frame(group=tab_in$group, Characteristic=tab_in$varnm, N=n_avail, `Percent (n) or Mean (SD)`=value)
+    data_frame(group=tab_in$group, Characteristic=tab_in$varnm, N=n_avail, summary_col=value)
   }
 }
 
@@ -35,7 +43,7 @@ test_grp <- function(ds, grp, tab_in){
   }
 }
 
-tab1_fxn <- function(tab_in, ds, grp, pp=1, mp=1, test=F){
+tab1_fxn <- function(tab_in, ds, grp, pp=1, mp=1, test=F, denom=F, header="both"){
   # print(tab_in)
   # if(tab_in$var=="ddx") browser()
   ## tab_in should include columns "varnm", "var", "type", *optional* "group"
@@ -43,7 +51,7 @@ tab1_fxn <- function(tab_in, ds, grp, pp=1, mp=1, test=F){
   # if(tab_in$var == "white") browser()
   if(!"group" %in% names(tab_in)) tab_in$group = ""
   if(!missing(grp)){
-    ds_out <- ds %>% group_by_(grp) %>% do(tab1_fxn_hpr(.,tab_in, pp=pp, mp=mp))
+    ds_out <- ds %>% group_by_(grp) %>% do(tab1_fxn_hpr(.,tab_in, pp=pp, mp=mp, denom=denom, header=header))
     if(test){
       p <- tryCatch(test_grp(ds, grp, tab_in), error=function(e) NA)
       ds_out <- ds_out %>% ungroup %>% mutate(p=p)
@@ -51,7 +59,7 @@ tab1_fxn <- function(tab_in, ds, grp, pp=1, mp=1, test=F){
     }
     ds_out
   } else {
-    ds %>% do(tab1_fxn_hpr(., tab_in, pp=pp, mp=mp))
+    ds %>% do(tab1_fxn_hpr(., tab_in, pp=pp, mp=mp, denom=denom, header=header))
   }
 }
 
