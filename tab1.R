@@ -23,12 +23,13 @@ tab1_fxn_hpr <- function(ds, tab_in, pp, mp, denom=F, header="both"){
   }
   
   summary_head <- ifelse(header=="msd", "Mean (SD)", ifelse(header=="np", "Percent (n)", "Percent (n) or Mean (SD)"))
-  if(tab_in$type == "m"){
+  tab_out <- if(tab_in$type == "m"){
     values <- sapply(targets, pct_fxn)
     data_frame(group=tab_in$varnm, Characteristic=targets, N=n_avail, summary_col=values)
   } else {
     data_frame(group=tab_in$group, Characteristic=tab_in$varnm, N=n_avail, summary_col=value)
-  } %>% setNames(c("group", "Characteristic", "N", summary_head))
+  } 
+  tab_out %>% setNames(c("group", "Characteristic", "N", summary_head))
 }
 
 test_grp <- function(ds, grp, tab_in){
